@@ -123,6 +123,20 @@ class _HomeMainViewState extends State<_HomeMainView>
   }
 
   @override
+  void didUpdateWidget(_HomeMainView old) {
+    super.didUpdateWidget(old);
+    if (widget.provider.pendingConfirm) {
+      widget.provider.consumePendingConfirm();
+      final names = widget.provider.selectedIngredients.map((i) => i.name).toList();
+      if (names.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _onConfirmIngredients(names);
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _fillCtrl.dispose();
     for (final t in _btTimers) {
@@ -297,7 +311,7 @@ class _HomeMainViewState extends State<_HomeMainView>
                     ),
                   ),
                 ),
-                GestureDetector(
+                TapEffect(
                   onTap: () => _openProfile(context),
                   child: Container(
                     width: 36,
@@ -367,7 +381,7 @@ class _HomeMainViewState extends State<_HomeMainView>
 
                   // + button
                   const SizedBox(height: 8),
-                  GestureDetector(
+                  TapEffect(
                     onTap: _openPopup,
                     child: Container(
                       width: 52,
@@ -532,7 +546,7 @@ class _BtStatusBar extends StatelessWidget {
           ),
           if (message != null) const SizedBox(width: 10),
           // BT badge (always right-aligned)
-          GestureDetector(
+          TapEffect(
             onTap: onTap,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),

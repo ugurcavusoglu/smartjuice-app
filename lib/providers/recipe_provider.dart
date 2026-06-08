@@ -65,12 +65,27 @@ class RecipeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Set to true when a recipe is confirmed from the recipe screen.
+  // HomeScreen consumes this flag to trigger the animation.
+  bool pendingConfirm = false;
+
+  void confirmFromRecipe() {
+    pendingConfirm = true;
+    notifyListeners();
+  }
+
+  void consumePendingConfirm() {
+    pendingConfirm = false;
+    // no notify needed — caller handles it
+  }
+
   void reset() {
     selectedIngredients.clear();
     cups = 0;
     recipeName = '';
     isMaking = false;
     isDone = false;
+    pendingConfirm = false;
     notifyListeners();
   }
 

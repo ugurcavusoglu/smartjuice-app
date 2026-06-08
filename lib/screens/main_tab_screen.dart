@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import 'home/home_screen.dart';
 import 'recipes/recipes_tab_screen.dart';
@@ -87,13 +88,20 @@ class _NavItem extends StatelessWidget {
     final isActive = index == currentIndex;
     return Expanded(
       child: GestureDetector(
-        onTap: () => onTap(index),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap(index);
+        },
         behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: Icon(
-            isActive ? activeIcon : icon,
-            color: Colors.white,
-            size: 28,
+        child: AnimatedScale(
+          scale: isActive ? 1.15 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          child: Center(
+            child: Icon(
+              isActive ? activeIcon : icon,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
         ),
       ),

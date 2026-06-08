@@ -223,8 +223,9 @@ class _RecipeCardState extends State<_RecipeCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return TapEffect(
       onTap: _openPopup,
+      scale: 0.97,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14),
         child: Column(
@@ -347,6 +348,7 @@ class _RecipePopupState extends State<_RecipePopup> {
       }
     });
     widget.provider.setRecipeName(widget.recipe.name);
+    widget.provider.confirmFromRecipe();
     widget.onConfirm();
   }
 
