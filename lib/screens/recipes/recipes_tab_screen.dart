@@ -1,0 +1,537 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:ui';
+import '../../providers/recipe_provider.dart';
+import '../../theme/app_theme.dart';
+import '../../models/recipe.dart';
+import '../../models/ingredient.dart';
+
+const _tabs = [
+  ('Favourites', Icons.favorite),
+  ('Last Recipes', Icons.history),
+  ('Suggestions', Icons.lightbulb_outline),
+];
+
+class RecipesTabScreen extends StatefulWidget {
+  final VoidCallback? onGoHome;
+  const RecipesTabScreen({super.key, this.onGoHome});
+
+  @override
+  State<RecipesTabScreen> createState() => _RecipesTabScreenState();
+}
+
+class _RecipesTabScreenState extends State<RecipesTabScreen> {
+  final _pageCtrl = PageController();
+  int _pageIndex = 0;
+
+  @override
+  void dispose() {
+    _pageCtrl.dispose();
+    super.dispose();
+  }
+
+  void _goTo(int index) {
+    _pageCtrl.animateToPage(index,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<RecipeProvider>();
+    final pages = [
+      provider.favourites,
+      provider.lastRecipes,
+      provider.suggestions,
+    ];
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          // Red AppBar
+          Container(
+            color: kPrimary,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 8,
+              left: 8,
+              right: 16,
+              bottom: 14,
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_back, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _tabs[_pageIndex].$1,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Icon(_tabs[_pageIndex].$2, color: Colors.white, size: 24),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: PageView.builder(
+              controller: _pageCtrl,
+              onPageChanged: (i) => setState(() => _pageIndex = i),
+              itemCount: 3,
+              itemBuilder: (_, i) => _RecipeListPage(
+                recipes: pages[i],
+                provider: provider,
+                onPrev: i > 0 ? () => _goTo(i - 1) : null,
+                onNext: i < 2 ? () => _goTo(i + 1) : null,
+                onGoHome: widget.onGoHome,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── List page ─────────────────────────────────────────────────────────────
+
+class _RecipeListPage extends StatelessWidget {
+  final List<Recipe> recipes;
+  final RecipeProvider provider;
+  final VoidCallback? onPrev;
+  final VoidCallback? onNext;
+  final VoidCallback? onGoHome;
+
+  const _RecipeListPage({
+    required this.recipes,
+    required this.provider,
+    this.onPrev,
+    this.onNext,
+    this.onGoHome,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        ListView.separated(
+          padding: const EdgeInsets.only(
+              left: 16, right: 16, top: 12, bottom: 80),
+          itemCount: recipes.length,
+          separatorBuilder: (_, __) => const Divider(height: 1),
+          itemBuilder: (_, i) => _RecipeCard(
+            number: i + 1,
+            recipe: recipes[i],
+            provider: provider,
+            onGoHome: onGoHome,
+          ),
+        ),
+        if (onPrev != null)
+          Positioned(
+            left: 0, top: 0, bottom: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: onPrev,
+                child: Container(
+                  width: 28, height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(12)),
+                    boxShadow: [BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 6)],
+                  ),
+                  child: const Icon(Icons.chevron_left,
+                      color: Colors.black54, size: 22),
+                ),
+              ),
+            ),
+          ),
+        if (onNext != null)
+          Positioned(
+            right: 0, top: 0, bottom: 0,
+            child: Center(
+              child: GestureDetector(
+                onTap: onNext,
+                child: Container(
+                  width: 28, height: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(12)),
+                    boxShadow: [BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 6)],
+                  ),
+                  child: const Icon(Icons.chevron_right,
+                      color: Colors.black54, size: 22),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ── Recipe card ───────────────────────────────────────────────────────────
+
+class _RecipeCard extends StatefulWidget {
+  final int number;
+  final Recipe recipe;
+  final RecipeProvider provider;
+  final VoidCallback? onGoHome;
+
+  const _RecipeCard({
+    required this.number,
+    required this.recipe,
+    required this.provider,
+    this.onGoHome,
+  });
+
+  @override
+  State<_RecipeCard> createState() => _RecipeCardState();
+}
+
+class _RecipeCardState extends State<_RecipeCard> {
+  late int _ml;
+
+  @override
+  void initState() {
+    super.initState();
+    _ml = widget.recipe.totalMl;
+  }
+
+  void _openPopup() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (_) => _RecipePopup(
+        recipe: widget.recipe,
+        provider: widget.provider,
+        onConfirm: () {
+          Navigator.of(context).pop();
+          widget.onGoHome?.call();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _openPopup,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${widget.number})${widget.recipe.name} ($_ml ml)',
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
+            ),
+            const SizedBox(height: 6),
+            const Text('Ingredients:',
+                style: TextStyle(fontSize: 13, color: Colors.black54)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: widget.recipe.ingredients.map((ing) {
+                final emoji = ing.emoji.isNotEmpty ? ing.emoji : '🍹';
+                final amount = ing.amount.isNotEmpty ? ing.amount : '1 piece';
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(emoji, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 4),
+                    Text('$amount ${ing.name.toLowerCase()}',
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.black87)),
+                  ],
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 14),
+            const Text('How many ml of fruit juice would you like?',
+                style: TextStyle(fontSize: 12, color: Colors.black45)),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () =>
+                      setState(() => _ml = (_ml - 50).clamp(50, 1000)),
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                        color: kPrimary.withValues(alpha: 0.12),
+                        shape: BoxShape.circle),
+                    child: const Icon(Icons.remove, color: kPrimary, size: 18),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Text('$_ml ml',
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87)),
+                const SizedBox(width: 14),
+                GestureDetector(
+                  onTap: () =>
+                      setState(() => _ml = (_ml + 50).clamp(50, 1000)),
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                        color: kPrimary.withValues(alpha: 0.12),
+                        shape: BoxShape.circle),
+                    child: const Icon(Icons.add, color: kPrimary, size: 18),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Recipe popup ──────────────────────────────────────────────────────────
+
+class _RecipePopup extends StatefulWidget {
+  final Recipe recipe;
+  final RecipeProvider provider;
+  final VoidCallback onConfirm;
+
+  const _RecipePopup({
+    required this.recipe,
+    required this.provider,
+    required this.onConfirm,
+  });
+
+  @override
+  State<_RecipePopup> createState() => _RecipePopupState();
+}
+
+class _RecipePopupState extends State<_RecipePopup> {
+  late Map<String, int> _counts;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill counts from recipe ingredients
+    _counts = {};
+    for (final ing in widget.recipe.ingredients) {
+      _counts[ing.name] = (_counts[ing.name] ?? 0) + 1;
+    }
+  }
+
+  void _confirm() {
+    widget.provider.reset();
+    _counts.forEach((name, count) {
+      if (count > 0) {
+        final ing = widget.recipe.ingredients
+            .firstWhere((i) => i.name == name,
+                orElse: () =>
+                    Ingredient(name: name, icon: Icons.circle, ml: 100));
+        for (var i = 0; i < count; i++) {
+          widget.provider.addIngredient(ing);
+        }
+      }
+    });
+    widget.provider.setRecipeName(widget.recipe.name);
+    widget.onConfirm();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Build full list: recipe ingredients + any extras not in recipe
+    final allNames = widget.recipe.ingredients.map((i) => i.name).toSet().toList();
+
+    return Stack(
+      children: [
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(color: kPrimary.withValues(alpha: 0.35)),
+        ),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.65),
+                decoration: BoxDecoration(
+                  color: kPrimary.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 16, 18, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.recipe.name,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const Icon(Icons.close,
+                                color: Colors.white70, size: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Ingredient list with counters
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        itemCount: allNames.length,
+                        separatorBuilder: (_, __) => Divider(
+                            height: 1,
+                            color: Colors.white.withValues(alpha: 0.2)),
+                        itemBuilder: (_, i) {
+                          final name = allNames[i];
+                          final ing = widget.recipe.ingredients
+                              .firstWhere((x) => x.name == name);
+                          final emoji =
+                              ing.emoji.isNotEmpty ? ing.emoji : '🍹';
+                          final count = _counts[name] ?? 0;
+                          return Container(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 10),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 36,
+                                  child: Text(emoji,
+                                      style:
+                                          const TextStyle(fontSize: 22)),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(name,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14)),
+                                ),
+                                _CounterBtn(
+                                  count: count,
+                                  onInc: () => setState(
+                                      () => _counts[name] = count + 1),
+                                  onDec: () => setState(() =>
+                                      _counts[name] =
+                                          (count - 1).clamp(0, 99)),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Confirm button
+                    Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: _confirm,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Colors.white.withValues(alpha: 0.85),
+                            foregroundColor: kPrimary,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30)),
+                            elevation: 0,
+                          ),
+                          child: const Text('Confirm',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CounterBtn extends StatelessWidget {
+  final int count;
+  final VoidCallback onInc;
+  final VoidCallback onDec;
+  const _CounterBtn(
+      {required this.count, required this.onInc, required this.onDec});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onInc,
+          child: Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              color: kPrimary.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.4), width: 1),
+            ),
+            child: const Icon(Icons.add, color: Colors.white, size: 14),
+          ),
+        ),
+        SizedBox(
+          width: 30,
+          child: Text('$count',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14)),
+        ),
+        GestureDetector(
+          onTap: onDec,
+          child: Container(
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              color: kPrimary.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.4), width: 1),
+            ),
+            child: const Icon(Icons.remove, color: Colors.white, size: 14),
+          ),
+        ),
+      ],
+    );
+  }
+}
