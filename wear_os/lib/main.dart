@@ -15,9 +15,11 @@ class WatchApp extends StatelessWidget {
       title: 'SmartJuice Watch',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
-        colorScheme: const ColorScheme.dark(primary: Color(0xFFB71C3C)),
+        colorScheme: const ColorScheme.dark(primary: _kPrimary),
       ),
-      home: const WatchHomeScreen(),
+      home: const WatchSplashScreen(),
     );
   }
 }
+
+const Color _kPrimary = Color(0xFFB71C3C);
