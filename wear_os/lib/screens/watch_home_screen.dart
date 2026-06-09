@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../main.dart';
 
 const Color _kPrimary = Color(0xFFB71C3C);
-const Color _kBg = Colors.black;
 
 // ── Static data ────────────────────────────────────────────────────────────
 
@@ -35,6 +35,23 @@ final _suggestions = [
   _Recipe('Purple Detox', ['1 piece grape', '1 piece blueberry', '1 piece plum'], 320),
 ];
 
+// Helper: returns the text/icon color based on theme
+Color _fg(BuildContext context) {
+  return WatchApp.of(context).isDark ? Colors.white : _kPrimary;
+}
+
+Color _fgDim(BuildContext context) {
+  return WatchApp.of(context).isDark ? Colors.white54 : _kPrimary.withOpacity(0.6);
+}
+
+Color _borderColor(BuildContext context) {
+  return WatchApp.of(context).isDark ? Colors.white38 : _kPrimary.withOpacity(0.4);
+}
+
+Color _dividerColor(BuildContext context) {
+  return WatchApp.of(context).isDark ? Colors.white12 : _kPrimary.withOpacity(0.15);
+}
+
 // ── Splash ────────────────────────────────────────────────────────────────
 
 class WatchSplashScreen extends StatefulWidget {
@@ -59,28 +76,22 @@ class _WatchSplashScreenState extends State<WatchSplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'V',
-              style: TextStyle(
-                color: _kPrimary,
-                fontSize: 64,
-                fontWeight: FontWeight.w900,
-                height: 1,
-              ),
-            ),
-            const SizedBox(height: 20),
+            Text('V',
+                style: TextStyle(
+                    color: _kPrimary,
+                    fontSize: 72,
+                    fontWeight: FontWeight.w900,
+                    height: 1)),
+            const SizedBox(height: 24),
             SizedBox(
-              width: 20,
-              height: 20,
+              width: 22, height: 22,
               child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white38,
-              ),
+                  strokeWidth: 2, color: _fg(context).withOpacity(0.4)),
             ),
           ],
         ),
@@ -89,7 +100,7 @@ class _WatchSplashScreenState extends State<WatchSplashScreen> {
   }
 }
 
-// ── Home (Busy/Ready machine state) ───────────────────────────────────────
+// ── Home (Busy / Ready) ───────────────────────────────────────────────────
 
 class WatchHomeScreen extends StatefulWidget {
   const WatchHomeScreen({super.key});
@@ -99,7 +110,7 @@ class WatchHomeScreen extends StatefulWidget {
 
 class _WatchHomeScreenState extends State<WatchHomeScreen> {
   bool _isBusy = true;
-  int _countdown = 50;
+  int _countdown = 8;
   Timer? _timer;
 
   @override
@@ -110,7 +121,7 @@ class _WatchHomeScreenState extends State<WatchHomeScreen> {
 
   void _startCountdown() {
     _timer?.cancel();
-    setState(() { _isBusy = true; _countdown = 50; });
+    setState(() { _isBusy = true; _countdown = 8; });
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) { t.cancel(); return; }
       setState(() => _countdown--);
@@ -133,71 +144,54 @@ class _WatchHomeScreenState extends State<WatchHomeScreen> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-  void _goToMenu() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const WatchMenuScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
-      body: Stack(
-        children: [
-          // Clock top-right
-          Positioned(
-            top: 10, right: 12,
-            child: _ClockWidget(),
-          ),
-          // Main content
-          Center(
-            child: _isBusy ? _buildBusy() : _buildReady(),
-          ),
-        ],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const WatchMenuScreen()),
+        ),
+        child: Center(
+          child: _isBusy ? _buildBusy(context) : _buildReady(context),
+        ),
       ),
     );
   }
 
-  Widget _buildBusy() {
-    return GestureDetector(
-      onTap: _goToMenu,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.close, color: _kPrimary, size: 52),
-          const SizedBox(height: 8),
-          const Text('Busy!',
-              style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white38),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              _countdownStr,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-            ),
+  Widget _buildBusy(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.close, color: _kPrimary, size: 56),
+        const SizedBox(height: 10),
+        Text('Busy!',
+            style: TextStyle(color: _fg(context), fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: _borderColor(context), width: 1.5),
+            borderRadius: BorderRadius.circular(20),
           ),
-        ],
-      ),
+          child: Text(_countdownStr,
+              style: TextStyle(
+                  color: _fg(context), fontSize: 20, fontWeight: FontWeight.w600)),
+        ),
+      ],
     );
   }
 
-  Widget _buildReady() {
-    return GestureDetector(
-      onTap: _goToMenu,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check, color: Colors.green, size: 64),
-          const SizedBox(height: 12),
-          const Text('Ready!',
-              style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-        ],
-      ),
+  Widget _buildReady(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.check, color: Colors.green, size: 72),
+        const SizedBox(height: 14),
+        Text('Ready!',
+            style: TextStyle(
+                color: _fg(context), fontSize: 26, fontWeight: FontWeight.bold)),
+      ],
     );
   }
 }
@@ -210,49 +204,55 @@ class WatchMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
-      body: Stack(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Column(
         children: [
-          Positioned(top: 10, right: 12, child: _ClockWidget()),
-          Positioned(
-            top: 10, left: 10,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const WatchSettingsScreen()),
-              ),
-              child: const Icon(Icons.settings, color: Colors.white54, size: 18),
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(44, 36, 44, 4),
+            child: Row(
               children: [
-                _MenuButton(
-                  label: 'Favourites',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => WatchRecipeListScreen(
-                        title: 'Favourites', recipes: _favourites),
-                  )),
-                ),
-                const SizedBox(height: 10),
-                _MenuButton(
-                  label: 'Last Recipes',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => WatchRecipeListScreen(
-                        title: 'Last Recipes', recipes: _lastRecipes),
-                  )),
-                ),
-                const SizedBox(height: 10),
-                _MenuButton(
-                  label: 'Suggestions',
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => WatchRecipeListScreen(
-                        title: 'Suggestions', recipes: _suggestions),
-                  )),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const WatchSettingsScreen()),
+                  ),
+                  child: Icon(Icons.settings, color: _fg(context), size: 22),
                 ),
               ],
             ),
           ),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _MenuButton(
+                    label: 'Favourites',
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => WatchRecipeListScreen(
+                          title: 'Favourites', recipes: _favourites),
+                    )),
+                  ),
+                  const SizedBox(height: 8),
+                  _MenuButton(
+                    label: 'Last Recipes',
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => WatchRecipeListScreen(
+                          title: 'Last Recipes', recipes: _lastRecipes),
+                    )),
+                  ),
+                  const SizedBox(height: 8),
+                  _MenuButton(
+                    label: 'Suggestions',
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => WatchRecipeListScreen(
+                          title: 'Suggestions', recipes: _suggestions),
+                    )),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -269,17 +269,15 @@ class _MenuButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        width: 150,
+        padding: const EdgeInsets.symmetric(vertical: 11),
         decoration: BoxDecoration(
           color: _kPrimary,
           borderRadius: BorderRadius.circular(24),
         ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
-        ),
+        child: Text(label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
       ),
     );
   }
@@ -295,22 +293,29 @@ class WatchRecipeListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
-      body: Stack(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Column(
         children: [
-          Positioned(top: 10, right: 12, child: _ClockWidget()),
-          Positioned(
-            top: 8, left: 8,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: const Icon(Icons.arrow_back, color: _kPrimary, size: 20),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(44, 36, 44, 6),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Icon(Icons.arrow_back, color: _kPrimary, size: 22),
+                ),
+                const SizedBox(width: 8),
+                Text(title,
+                    style: TextStyle(color: _fgDim(context), fontSize: 13)),
+              ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 36, left: 12, right: 12, bottom: 8),
+          Expanded(
             child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 44),
               itemCount: recipes.length,
-              separatorBuilder: (_, __) => Divider(color: Colors.white12, height: 1),
+              separatorBuilder: (_, __) =>
+                  Divider(color: _dividerColor(context), height: 1),
               itemBuilder: (_, i) => GestureDetector(
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
@@ -318,11 +323,10 @@ class WatchRecipeListScreen extends StatelessWidget {
                   ),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    recipes[i].name,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(recipes[i].name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: _fg(context), fontSize: 15)),
                 ),
               ),
             ),
@@ -342,42 +346,58 @@ class WatchRecipeDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _kBg,
-      body: Stack(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Column(
         children: [
-          Positioned(top: 10, right: 12, child: _ClockWidget()),
-          Positioned(
-            top: 8, left: 8,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: const Icon(Icons.arrow_back, color: _kPrimary, size: 20),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.only(top: 36, left: 14, right: 14, bottom: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(44, 36, 44, 6),
+            child: Row(
               children: [
-                ...recipe.ingredients.map((ing) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(ing,
-                      style: const TextStyle(color: Colors.white, fontSize: 13)),
-                )),
-                const Spacer(),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white38),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${recipe.ml} ml',
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
-                  ),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Icon(Icons.arrow_back, color: _kPrimary, size: 22),
                 ),
               ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 44),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: recipe.ingredients
+                            .map((ing) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 7),
+                                  child: Text(ing,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: _fg(context), fontSize: 14)),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 9),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: _borderColor(context), width: 1.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text('${recipe.ml} ml',
+                        style: TextStyle(
+                            color: _fg(context),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           ),
         ],
@@ -395,20 +415,36 @@ class WatchSettingsScreen extends StatefulWidget {
 }
 
 class _WatchSettingsScreenState extends State<WatchSettingsScreen> {
-  bool _darkMode = true;
   bool _silent = false;
   bool _useOz = false;
   bool _favourite = false;
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final tileSize = size.width * 0.25;
+    final gap = size.width * 0.06;
+    final appState = WatchApp.of(context);
+    final isDark = appState.isDark;
     return Scaffold(
-      backgroundColor: _kBg,
-      body: Stack(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Column(
         children: [
-          Positioned(top: 10, right: 12, child: _ClockWidget()),
           Padding(
-            padding: const EdgeInsets.only(top: 32),
+            padding: const EdgeInsets.fromLTRB(44, 36, 20, 6),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Icon(Icons.arrow_back, color: _kPrimary, size: 22),
+                ),
+                const SizedBox(width: 8),
+                Text('Settings',
+                    style: TextStyle(color: _fgDim(context), fontSize: 13)),
+              ],
+            ),
+          ),
+          Expanded(
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -417,33 +453,39 @@ class _WatchSettingsScreenState extends State<WatchSettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _SettingsTile(
-                        icon: _darkMode ? Icons.dark_mode : Icons.light_mode,
-                        active: _darkMode,
-                        onTap: () => setState(() => _darkMode = !_darkMode),
+                        icon: isDark ? Icons.dark_mode : Icons.light_mode,
+                        active: true,
+                        tileSize: tileSize,
+                        onTap: () => appState.toggleTheme(),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: gap),
                       _SettingsTile(
-                        icon: _silent ? Icons.notifications_off : Icons.notifications_off_outlined,
+                        icon: _silent
+                            ? Icons.notifications_off
+                            : Icons.notifications_off_outlined,
                         active: _silent,
+                        tileSize: tileSize,
                         onTap: () => setState(() => _silent = !_silent),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: gap),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _SettingsTile(
                         label: _useOz ? 'oz' : 'ml',
                         active: true,
+                        tileSize: tileSize,
                         onTap: () => setState(() => _useOz = !_useOz),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: gap),
                       _SettingsTile(
                         icon: _favourite ? Icons.favorite : Icons.favorite_border,
                         active: _favourite,
-                        onTap: () => setState(() => _favourite = !_favourite),
+                        tileSize: tileSize,
                         activeColor: _favourite ? Colors.red.shade300 : null,
+                        onTap: () => setState(() => _favourite = !_favourite),
                       ),
                     ],
                   ),
@@ -463,12 +505,14 @@ class _SettingsTile extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
   final Color? activeColor;
+  final double tileSize;
 
   const _SettingsTile({
     this.icon,
     this.label,
     required this.active,
     required this.onTap,
+    required this.tileSize,
     this.activeColor,
   });
 
@@ -477,59 +521,24 @@ class _SettingsTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
+        width: tileSize,
+        height: tileSize,
+        decoration: const BoxDecoration(
           color: _kPrimary,
           shape: BoxShape.circle,
         ),
         child: Center(
           child: icon != null
-              ? Icon(icon, color: activeColor ?? Colors.white, size: 26)
+              ? Icon(icon, color: activeColor ?? Colors.white, size: tileSize * 0.45)
               : Text(
                   label!,
-                  style: const TextStyle(
-                      color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: tileSize * 0.24,
+                      fontWeight: FontWeight.bold),
                 ),
         ),
       ),
-    );
-  }
-}
-
-// ── Clock widget (top-right on every screen) ──────────────────────────────
-
-class _ClockWidget extends StatefulWidget {
-  @override
-  State<_ClockWidget> createState() => _ClockWidgetState();
-}
-
-class _ClockWidgetState extends State<_ClockWidget> {
-  late Timer _timer;
-  late DateTime _now;
-
-  @override
-  void initState() {
-    super.initState();
-    _now = DateTime.now();
-    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (mounted) setState(() => _now = DateTime.now());
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final h = _now.hour.toString().padLeft(2, '0');
-    final m = _now.minute.toString().padLeft(2, '0');
-    return Text(
-      '$h:$m',
-      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
     );
   }
 }
