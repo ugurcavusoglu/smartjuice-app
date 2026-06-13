@@ -58,15 +58,26 @@ lib/
 **Requirements:** Flutter SDK 3.27+, Android SDK, Java 21
 
 ```bash
-# Install dependencies
+# 1. Repoyu klonla
+git clone https://github.com/ugurcavusoglu/smartjuice-app.git
+cd smartjuice-app
+
+# 2. Bağımlılıkları yükle
 flutter pub get
 
-# Run on device/emulator
+# 3. Emülatör veya gerçek cihazda çalıştır
 flutter run
 
-# Build release APK
+# 4. Release APK oluştur
 flutter build apk --release
 ```
+
+APK dosyası şu konumda oluşur:
+```
+build/app/outputs/flutter-apk/app-release.apk
+```
+
+Bu dosyayı Android cihaza aktarıp kurabilirsin (cihazda "Bilinmeyen kaynaklardan yükleme" açık olmalı).
 
 ## Course
 
