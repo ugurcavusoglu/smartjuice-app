@@ -231,24 +231,36 @@ class _RecipeCardState extends State<_RecipeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final cardBg = isDark ? const Color(0xFF3D1A24) : const Color(0xFFFCE4EC);
+    final titleColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white70 : Colors.black54;
+    final ingColor = isDark ? Colors.white : Colors.black87;
     return TapEffect(
       onTap: _openPopup,
       scale: 0.97,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+              color: kPrimary.withValues(alpha: isDark ? 0.5 : 0.3), width: 1.5),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.number})${widget.recipe.name} ($_ml ml)',
-              style: const TextStyle(
+              '${widget.number}) ${widget.recipe.name} ($_ml ml)',
+              style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: titleColor),
             ),
             const SizedBox(height: 6),
-            const Text('Ingredients:',
-                style: TextStyle(fontSize: 13, color: Colors.black54)),
+            Text('Ingredients:',
+                style: TextStyle(fontSize: 13, color: subColor)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 12,
@@ -262,15 +274,14 @@ class _RecipeCardState extends State<_RecipeCard> {
                     Text(emoji, style: const TextStyle(fontSize: 20)),
                     const SizedBox(width: 4),
                     Text('$amount ${ing.name.toLowerCase()}',
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.black87)),
+                        style: TextStyle(fontSize: 12, color: ingColor)),
                   ],
                 );
               }).toList(),
             ),
             const SizedBox(height: 14),
-            const Text('How many ml of fruit juice would you like?',
-                style: TextStyle(fontSize: 12, color: Colors.black45)),
+            Text('How many ml of fruit juice would you like?',
+                style: TextStyle(fontSize: 12, color: subColor)),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -287,10 +298,10 @@ class _RecipeCardState extends State<_RecipeCard> {
                 ),
                 const SizedBox(width: 14),
                 Text('$_ml ml',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87)),
+                        color: titleColor)),
                 const SizedBox(width: 14),
                 GestureDetector(
                   onTap: () =>
