@@ -129,19 +129,9 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _SettingsTile(
-                          iconWidget: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: const BoxDecoration(
-                                color: kPrimary, shape: BoxShape.circle),
-                            child: Icon(
-                              isDark
-                                  ? Icons.dark_mode_outlined
-                                  : Icons.wb_sunny_outlined,
-                              color: Colors.white,
-                              size: 26,
-                            ),
-                          ),
+                          icon: isDark
+                              ? Icons.dark_mode_outlined
+                              : Icons.wb_sunny_outlined,
                           label: isDark ? 'Dark Mode' : 'Light Mode',
                           onTap: () => themeProvider.toggle(),
                         ),
@@ -149,23 +139,9 @@ class SettingsScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _SettingsTile(
-                          iconWidget: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: settings.silent
-                                  ? Colors.grey
-                                  : kPrimary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              settings.silent
-                                  ? Icons.notifications_off
-                                  : Icons.notifications_active,
-                              color: Colors.white,
-                              size: 26,
-                            ),
-                          ),
+                          icon: settings.silent
+                              ? Icons.notifications_off
+                              : Icons.notifications_active,
                           label: settings.silent ? 'Silent ON' : 'Silent',
                           onTap: () => settings.toggleSilent(),
                         ),
@@ -179,21 +155,7 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _SettingsTile(
-                          iconWidget: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: const BoxDecoration(
-                                color: kPrimary, shape: BoxShape.circle),
-                            child: Center(
-                              child: Text(
-                                settings.useOz ? 'oz' : 'ml',
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
-                              ),
-                            ),
-                          ),
+                          customText: settings.useOz ? 'oz' : 'ml',
                           label: settings.useOz ? 'oz mode' : 'ml / oz',
                           onTap: () => settings.toggleUnit(),
                         ),
@@ -201,14 +163,7 @@ class SettingsScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _SettingsTile(
-                          iconWidget: Container(
-                            width: 52,
-                            height: 52,
-                            decoration: const BoxDecoration(
-                                color: kPrimary, shape: BoxShape.circle),
-                            child: const Icon(Icons.favorite_border,
-                                color: Colors.white, size: 26),
-                          ),
+                          icon: Icons.favorite_border,
                           label: 'Apple Health',
                           onTap: () {},
                         ),
@@ -616,13 +571,16 @@ class _HelpField extends StatelessWidget {
 }
 
 class _SettingsTile extends StatefulWidget {
-  final Widget iconWidget;
+  final IconData? icon;
+  final String? customText;
   final String label;
   final VoidCallback onTap;
-  const _SettingsTile(
-      {required this.iconWidget,
-      required this.label,
-      required this.onTap});
+  const _SettingsTile({
+    this.icon,
+    this.customText,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   State<_SettingsTile> createState() => _SettingsTileState();
@@ -633,6 +591,20 @@ class _SettingsTileState extends State<_SettingsTile> {
 
   @override
   Widget build(BuildContext context) {
+    final circleColor = _pressed ? Colors.white : kPrimary;
+    final iconColor = _pressed ? kPrimary : Colors.white;
+
+    Widget circleChild;
+    if (widget.customText != null) {
+      circleChild = Text(
+        widget.customText!,
+        style: TextStyle(
+            color: iconColor, fontWeight: FontWeight.bold, fontSize: 16),
+      );
+    } else {
+      circleChild = Icon(widget.icon, color: iconColor, size: 26);
+    }
+
     return GestureDetector(
       onTap: widget.onTap,
       onTapDown: (_) => setState(() => _pressed = true),
@@ -648,7 +620,16 @@ class _SettingsTileState extends State<_SettingsTile> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            widget.iconWidget,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: circleColor,
+                shape: BoxShape.circle,
+              ),
+              child: Center(child: circleChild),
+            ),
             const SizedBox(height: 12),
             Text(widget.label,
                 style: TextStyle(
