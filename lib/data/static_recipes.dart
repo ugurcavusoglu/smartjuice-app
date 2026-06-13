@@ -23,7 +23,7 @@ List<Recipe> buildStaticRecipes() => [
         ingredients: [
           Ingredient(name: 'Apple', icon: Icons.circle, ml: 100, emoji: '🍎', amount: '1 piece'),
           Ingredient(name: 'Lemon', icon: Icons.circle, ml: 80, emoji: '🍋', amount: '1 piece'),
-          Ingredient(name: 'Cucumber', icon: Icons.circle, ml: 120, emoji: '🥒', amount: '1 piece'),
+          Ingredient(name: 'Kiwi', icon: Icons.circle, ml: 120, emoji: '🥝', amount: '1 piece'),
         ],
       ),
       Recipe(
@@ -33,7 +33,7 @@ List<Recipe> buildStaticRecipes() => [
         isFavourite: true,
         ingredients: [
           Ingredient(name: 'Strawberry', icon: Icons.circle, ml: 150, emoji: '🍓', amount: '3 pieces'),
-          Ingredient(name: 'Raspberry', icon: Icons.circle, ml: 100, emoji: '🫐', amount: '2 pieces'),
+          Ingredient(name: 'Cherry', icon: Icons.circle, ml: 100, emoji: '🍒', amount: '2 pieces'),
         ],
       ),
       Recipe(
@@ -53,9 +53,9 @@ List<Recipe> buildStaticRecipes() => [
         name: 'Sunrise Glow',
         totalMlOverride: 250,
         ingredients: [
-          Ingredient(name: 'Carrot', icon: Icons.circle, ml: 100, emoji: '🥕', amount: '2 pieces'),
-          Ingredient(name: 'Ginger', icon: Icons.circle, ml: 50, emoji: '🫚', amount: '2 slices'),
+          Ingredient(name: 'Peach', icon: Icons.circle, ml: 100, emoji: '🍑', amount: '2 pieces'),
           Ingredient(name: 'Orange', icon: Icons.circle, ml: 100, emoji: '🍊', amount: '1 piece'),
+          Ingredient(name: 'Lemon', icon: Icons.circle, ml: 50, emoji: '🍋', amount: '1 piece'),
         ],
       ),
       Recipe(
@@ -64,7 +64,7 @@ List<Recipe> buildStaticRecipes() => [
         totalMlOverride: 200,
         ingredients: [
           Ingredient(name: 'Apple', icon: Icons.circle, ml: 100, emoji: '🍎', amount: '1 piece'),
-          Ingredient(name: 'Ginger', icon: Icons.circle, ml: 50, emoji: '🫚', amount: '2 slices'),
+          Ingredient(name: 'Pear', icon: Icons.circle, ml: 50, emoji: '🍐', amount: '1 piece'),
           Ingredient(name: 'Lemon', icon: Icons.circle, ml: 50, emoji: '🍋', amount: '1/2 piece'),
         ],
       ),
@@ -94,7 +94,7 @@ List<Recipe> buildStaticRecipes() => [
         totalMlOverride: 200,
         ingredients: [
           Ingredient(name: 'Grape', icon: Icons.circle, ml: 100, emoji: '🍇', amount: '1 piece'),
-          Ingredient(name: 'Berry', icon: Icons.circle, ml: 100, emoji: '🫐', amount: '1 piece'),
+          Ingredient(name: 'Blueberry', icon: Icons.circle, ml: 100, emoji: '🫐', amount: '1 piece'),
           Ingredient(name: 'Apple', icon: Icons.circle, ml: 50, emoji: '🍎', amount: '1/2 piece'),
         ],
       ),
@@ -104,8 +104,8 @@ List<Recipe> buildStaticRecipes() => [
         totalMlOverride: 250,
         ingredients: [
           Ingredient(name: 'Pear', icon: Icons.circle, ml: 100, emoji: '🍐', amount: '1 piece'),
-          Ingredient(name: 'Cucumber', icon: Icons.circle, ml: 100, emoji: '🥒', amount: '1 piece'),
-          Ingredient(name: 'Mint', icon: Icons.circle, ml: 50, emoji: '🌿', amount: '5 pieces'),
+          Ingredient(name: 'Kiwi', icon: Icons.circle, ml: 100, emoji: '🥝', amount: '1 piece'),
+          Ingredient(name: 'Avocado', icon: Icons.circle, ml: 50, emoji: '🥑', amount: '1/2 piece'),
         ],
       ),
       Recipe(

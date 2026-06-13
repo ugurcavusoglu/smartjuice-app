@@ -307,8 +307,8 @@ class _RecipeCardState extends State<_RecipeCard> {
                         ? SvgPicture.asset(svgPath,
                             width: 22,
                             height: 22,
-                            colorFilter: ColorFilter.mode(
-                                ingColor, BlendMode.srcIn))
+                            colorFilter: const ColorFilter.mode(
+                                kPrimary, BlendMode.srcIn))
                         : Text(ing.emoji.isNotEmpty ? ing.emoji : '🍹',
                             style: const TextStyle(fontSize: 18)),
                     const SizedBox(width: 5),
