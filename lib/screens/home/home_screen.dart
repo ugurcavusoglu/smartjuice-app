@@ -1019,7 +1019,7 @@ class _IngredientPopupState extends State<_IngredientPopup> {
               color: Colors.transparent,
               child: Container(
                 constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.68),
+                    maxHeight: MediaQuery.of(context).size.height * 0.78),
                 decoration: BoxDecoration(
                   color: kPrimary.withValues(alpha: 0.92),
                   borderRadius: BorderRadius.circular(24),
@@ -1066,43 +1066,38 @@ class _IngredientPopupState extends State<_IngredientPopup> {
                         ),
                       ),
                     ),
-                    Flexible(
+                    SizedBox(
+                      height: 222, // exactly 3 items × 74px each
                       child: ListView.separated(
-                        shrinkWrap: true,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         itemCount: _filtered.length,
-                        separatorBuilder: (_, __) => Divider(
-                            height: 1,
-                            color: Colors.white.withValues(alpha: 0.2)),
+                        separatorBuilder: (_, __) => const SizedBox(height: 0),
                         itemBuilder: (_, i) {
                           final fruit = _filtered[i];
                           final count = _counts[fruit.$1] ?? 0;
                           return Container(
-                            color: Colors.white.withValues(alpha: 0.12),
+                            margin: const EdgeInsets.symmetric(vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 10),
+                                horizontal: 14, vertical: 10),
                             child: Row(
                               children: [
-                                SizedBox(
-                                  width: 36,
-                                  child: fruit.$2.isNotEmpty
-                                      ? Text(fruit.$2,
-                                          style: const TextStyle(
-                                              fontSize: 22))
-                                      : const Icon(Icons.circle_outlined,
-                                          color: Colors.white54,
-                                          size: 22),
-                                ),
-                                const SizedBox(width: 8),
+                                // Large emoji icon
+                                Text(fruit.$2,
+                                    style: const TextStyle(fontSize: 42)),
+                                const SizedBox(width: 14),
                                 Expanded(
                                   child: Text(fruit.$1,
                                       style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14)),
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16)),
                                 ),
-                                _CounterWidget(
+                                // Vertical counter
+                                _VerticalCounter(
                                   count: count,
                                   onInc: () => setState(
                                       () => _counts[fruit.$1] = count + 1),
@@ -1189,6 +1184,43 @@ class _IngredientPopupState extends State<_IngredientPopup> {
               ),
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// Figma-style vertical counter: + top, count middle, - bottom
+class _VerticalCounter extends StatelessWidget {
+  final int count;
+  final VoidCallback onInc;
+  final VoidCallback onDec;
+  const _VerticalCounter(
+      {required this.count, required this.onInc, required this.onDec});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: onInc,
+          child: Icon(Icons.add, color: kPrimary, size: 22),
+        ),
+        if (count > 0) ...[
+          const SizedBox(height: 2),
+          Text('$count',
+              style: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16)),
+          const SizedBox(height: 2),
+        ] else
+          const SizedBox(height: 4),
+        GestureDetector(
+          onTap: onDec,
+          child: Icon(Icons.remove,
+              color: count > 0 ? kPrimary : Colors.black26, size: 22),
         ),
       ],
     );
