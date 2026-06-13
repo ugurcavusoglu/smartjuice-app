@@ -480,7 +480,7 @@ class _HelpDialogState extends State<_HelpDialog> {
                         offset: const Offset(0, 8))
                   ],
                 ),
-                child: _sent ? _sentView() : _formView(),
+                child: _sent ? _sentView() : _formView(context),
               ),
             ),
           ),
@@ -489,21 +489,31 @@ class _HelpDialogState extends State<_HelpDialog> {
     );
   }
 
-  Widget _formView() => Column(
+  Widget _formView(BuildContext context) => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('How can we help?',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(height: 14),
+          Row(
+            children: [
+              const Expanded(
+                child: Text('How can we help?',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+              ),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: const Icon(Icons.close, color: Colors.white, size: 22),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           _HelpField(controller: _problemCtrl, hint: 'Problem Type'),
           const SizedBox(height: 10),
           TextField(
             controller: _descCtrl,
-            maxLines: 4,
+            maxLines: 5,
             style: const TextStyle(fontSize: 13),
             decoration: InputDecoration(
               hintText: 'Description',
@@ -536,23 +546,23 @@ class _HelpDialogState extends State<_HelpDialog> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20)),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
                     elevation: 0,
                   ),
                   child: const Text('Send',
-                      style: TextStyle(fontSize: 13)),
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            height: 42,
+            height: 46,
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withValues(alpha: 0.2),
+                backgroundColor: Colors.white.withValues(alpha: 0.18),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
@@ -560,7 +570,7 @@ class _HelpDialogState extends State<_HelpDialog> {
               ),
               child: const Text('Call Service',
                   style: TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w600)),
+                      fontSize: 15, fontWeight: FontWeight.w700)),
             ),
           ),
         ],

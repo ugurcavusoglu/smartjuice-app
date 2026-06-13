@@ -268,6 +268,9 @@ class _HomeMainViewState extends State<_HomeMainView>
           _juiceReady = true;
           _estimatedSeconds = 0;
         });
+        Future.delayed(const Duration(seconds: 4), () {
+          if (mounted) setState(() => _juiceReady = false);
+        });
       });
     });
   }
@@ -1022,7 +1025,20 @@ class _IngredientPopupState extends State<_IngredientPopup> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const Icon(Icons.close,
+                                color: Colors.white70, size: 22),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
                       child: TextField(
                         controller: _searchCtrl,
                         style: const TextStyle(fontSize: 13),
