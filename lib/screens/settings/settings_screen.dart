@@ -100,21 +100,12 @@ class SettingsScreen extends StatelessWidget {
                           Container(
                             width: 52,
                             height: 52,
-                            decoration: BoxDecoration(
-                              color: kPrimary.withValues(alpha: 0.15),
+                            decoration: const BoxDecoration(
+                              color: kPrimary,
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: Colors.black87, width: 2.5),
                             ),
-                            child: Center(
-                              child: Text(
-                                settings.userInitial,
-                                style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: kPrimary),
-                              ),
-                            ),
+                            child: const Icon(Icons.person_outline,
+                                color: Colors.white, size: 28),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -624,7 +615,7 @@ class _HelpField extends StatelessWidget {
   }
 }
 
-class _SettingsTile extends StatelessWidget {
+class _SettingsTile extends StatefulWidget {
   final Widget iconWidget;
   final String label;
   final VoidCallback onTap;
@@ -634,25 +625,36 @@ class _SettingsTile extends StatelessWidget {
       required this.onTap});
 
   @override
+  State<_SettingsTile> createState() => _SettingsTileState();
+}
+
+class _SettingsTileState extends State<_SettingsTile> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: const Color(0xFFFCE4EC),
+          color: _pressed ? kPrimary : const Color(0xFFFCE4EC),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            iconWidget,
+            widget.iconWidget,
             const SizedBox(height: 12),
-            Text(label,
-                style: const TextStyle(
+            Text(widget.label,
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black87)),
+                    color: _pressed ? Colors.white : Colors.black87)),
           ],
         ),
       ),
@@ -660,28 +662,39 @@ class _SettingsTile extends StatelessWidget {
   }
 }
 
-class _WideButton extends StatelessWidget {
+class _WideButton extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
   const _WideButton({required this.label, required this.onTap});
 
   @override
+  State<_WideButton> createState() => _WideButtonState();
+}
+
+class _WideButtonState extends State<_WideButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFFFCE4EC),
+          color: _pressed ? kPrimary : const Color(0xFFFCE4EC),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Center(
-          child: Text(label,
-              style: const TextStyle(
+          child: Text(widget.label,
+              style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87)),
+                  color: _pressed ? Colors.white : Colors.black87)),
         ),
       ),
     );
