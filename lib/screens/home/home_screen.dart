@@ -1074,54 +1074,20 @@ class _IngredientPopupState extends State<_IngredientPopup> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 222, // exactly 3 items × 74px each
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        itemCount: _filtered.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 0),
-                        itemBuilder: (_, i) {
-                          final fruit = _filtered[i];
-                          final count = _counts[fruit.$1] ?? 0;
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
-                            child: Row(
-                              children: [
-                                // Large SVG icon
-                                SvgPicture.asset(
-                                  fruit.$2,
-                                  width: 48,
-                                  height: 48,
-                                  colorFilter: const ColorFilter.mode(
-                                      Colors.black87, BlendMode.srcIn),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Text(fruit.$1,
-                                      style: const TextStyle(
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16)),
-                                ),
-                                // Vertical counter
-                                _VerticalCounter(
-                                  count: count,
-                                  onInc: () => setState(
-                                      () => _counts[fruit.$1] = count + 1),
-                                  onDec: () => setState(() =>
-                                      _counts[fruit.$1] =
-                                          (count - 1).clamp(0, 99)),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: 230,
+                          color: Colors.white,
+                          child: _FruitPickerList(
+                            fruits: _filtered,
+                            counts: _counts,
+                            onCountChanged: (name, val) =>
+                                setState(() => _counts[name] = val),
+                          ),
+                        ),
                       ),
                     ),
                     Padding(
@@ -1199,6 +1165,98 @@ class _IngredientPopupState extends State<_IngredientPopup> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Fruit Picker List ─────────────────────────────────────────────────────
+
+class _FruitPickerList extends StatefulWidget {
+  final List<(String, String)> fruits;
+  final Map<String, int> counts;
+  final void Function(String name, int val) onCountChanged;
+
+  const _FruitPickerList({
+    required this.fruits,
+    required this.counts,
+    required this.onCountChanged,
+  });
+
+  @override
+  State<_FruitPickerList> createState() => _FruitPickerListState();
+}
+
+class _FruitPickerListState extends State<_FruitPickerList> {
+  final _scrollCtrl = ScrollController();
+  int _centerIndex = 1;
+  static const double _itemH = 76.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollCtrl.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final offset = _scrollCtrl.offset;
+    final idx = (offset / _itemH).round() + 1;
+    final clamped = idx.clamp(0, widget.fruits.length - 1);
+    if (clamped != _centerIndex) setState(() => _centerIndex = clamped);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      controller: _scrollCtrl,
+      padding: EdgeInsets.zero,
+      itemCount: widget.fruits.length,
+      separatorBuilder: (_, __) => Divider(
+          height: 1, color: Colors.black.withValues(alpha: 0.06)),
+      itemBuilder: (_, i) {
+        final fruit = widget.fruits[i];
+        final count = widget.counts[fruit.$1] ?? 0;
+        final isCenter = i == _centerIndex;
+        return SizedBox(
+          height: _itemH,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  fruit.$2,
+                  width: 44,
+                  height: 44,
+                  colorFilter: const ColorFilter.mode(
+                      Colors.black87, BlendMode.srcIn),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(fruit.$1,
+                      style: const TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16)),
+                ),
+                if (isCenter || count > 0)
+                  _VerticalCounter(
+                    count: count,
+                    onInc: () => widget.onCountChanged(fruit.$1, count + 1),
+                    onDec: () => widget.onCountChanged(
+                        fruit.$1, (count - 1).clamp(0, 99)),
+                  )
+                else
+                  const SizedBox(width: 40),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

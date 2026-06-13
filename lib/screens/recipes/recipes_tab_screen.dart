@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:ui';
 import '../../providers/recipe_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../models/recipe.dart';
 import '../../models/ingredient.dart';
+
+const _fruitSvg = {
+  'Apple': 'assets/fruits/apple.svg',
+  'Banana': 'assets/fruits/banana.svg',
+  'Orange': 'assets/fruits/orange.svg',
+  'Pear': 'assets/fruits/pear.svg',
+  'Peach': 'assets/fruits/peach.svg',
+  'Cherry': 'assets/fruits/cherry.svg',
+  'Strawberry': 'assets/fruits/strawberry.svg',
+  'Blueberry': 'assets/fruits/blueberry.svg',
+  'Grape': 'assets/fruits/grape.svg',
+  'Watermelon': 'assets/fruits/watermelon.svg',
+  'Melon': 'assets/fruits/melon.svg',
+  'Pineapple': 'assets/fruits/pineapple.svg',
+  'Mango': 'assets/fruits/mango.svg',
+  'Kiwi': 'assets/fruits/kiwi.svg',
+  'Lemon': 'assets/fruits/lemon.svg',
+  'Coconut': 'assets/fruits/coconut.svg',
+  'Avocado': 'assets/fruits/avocado.svg',
+  'Grapefruit': 'assets/fruits/grapefruit.svg',
+  'Carrot': 'assets/fruits/apple.svg',
+  'Cucumber': 'assets/fruits/avocado.svg',
+};
 
 const _tabs = [
   ('Favourites', Icons.favorite),
@@ -232,7 +256,7 @@ class _RecipeCardState extends State<_RecipeCard> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
-    final cardBg = isDark ? const Color(0xFF3D1A24) : const Color(0xFFFCE4EC);
+    final cardBg = isDark ? const Color(0xFF3D1A24) : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final subColor = isDark ? Colors.white70 : Colors.black54;
     final ingColor = isDark ? Colors.white : Colors.black87;
@@ -245,8 +269,9 @@ class _RecipeCardState extends State<_RecipeCard> {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: kPrimary.withValues(alpha: isDark ? 0.5 : 0.3), width: 1.5),
+          border: isDark
+              ? Border.all(color: kPrimary.withValues(alpha: 0.5), width: 1.5)
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -269,16 +294,24 @@ class _RecipeCardState extends State<_RecipeCard> {
             ),
             const SizedBox(height: 8),
             Wrap(
-              spacing: 12,
+              spacing: 16,
               runSpacing: 8,
+              alignment: WrapAlignment.center,
               children: widget.recipe.ingredients.map((ing) {
-                final emoji = ing.emoji.isNotEmpty ? ing.emoji : '🍹';
+                final svgPath = _fruitSvg[ing.name];
                 final amount = ing.amount.isNotEmpty ? ing.amount : '1 piece';
                 return Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(emoji, style: const TextStyle(fontSize: 20)),
-                    const SizedBox(width: 4),
+                    svgPath != null
+                        ? SvgPicture.asset(svgPath,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                                ingColor, BlendMode.srcIn))
+                        : Text(ing.emoji.isNotEmpty ? ing.emoji : '🍹',
+                            style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 5),
                     Text('$amount ${ing.name.toLowerCase()}',
                         style: TextStyle(fontSize: 12, color: ingColor)),
                   ],
