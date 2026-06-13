@@ -1187,33 +1187,12 @@ class _FruitPickerList extends StatefulWidget {
 }
 
 class _FruitPickerListState extends State<_FruitPickerList> {
-  final _scrollCtrl = ScrollController();
-  int _centerIndex = 1;
+  int? _selectedIndex;
   static const double _itemH = 76.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollCtrl.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollCtrl.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    final offset = _scrollCtrl.offset;
-    final idx = (offset / _itemH).round() + 1;
-    final clamped = idx.clamp(0, widget.fruits.length - 1);
-    if (clamped != _centerIndex) setState(() => _centerIndex = clamped);
-  }
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      controller: _scrollCtrl,
       padding: EdgeInsets.zero,
       itemCount: widget.fruits.length,
       separatorBuilder: (_, __) => Divider(
@@ -1221,38 +1200,43 @@ class _FruitPickerListState extends State<_FruitPickerList> {
       itemBuilder: (_, i) {
         final fruit = widget.fruits[i];
         final count = widget.counts[fruit.$1] ?? 0;
-        final isCenter = i == _centerIndex;
-        return SizedBox(
-          height: _itemH,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  fruit.$2,
-                  width: 44,
-                  height: 44,
-                  colorFilter: const ColorFilter.mode(
-                      Colors.black87, BlendMode.srcIn),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(fruit.$1,
-                      style: const TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16)),
-                ),
-                if (isCenter || count > 0)
-                  _VerticalCounter(
-                    count: count,
-                    onInc: () => widget.onCountChanged(fruit.$1, count + 1),
-                    onDec: () => widget.onCountChanged(
-                        fruit.$1, (count - 1).clamp(0, 99)),
-                  )
-                else
-                  const SizedBox(width: 40),
-              ],
+        final isSelected = i == _selectedIndex || count > 0;
+        return GestureDetector(
+          onTap: () => setState(() =>
+              _selectedIndex = _selectedIndex == i ? null : i),
+          child: SizedBox(
+            height: _itemH,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    fruit.$2,
+                    width: 44,
+                    height: 44,
+                    colorFilter: const ColorFilter.mode(
+                        Colors.black87, BlendMode.srcIn),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Text(fruit.$1,
+                        style: const TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16)),
+                  ),
+                  if (isSelected)
+                    _VerticalCounter(
+                      count: count,
+                      onInc: () =>
+                          widget.onCountChanged(fruit.$1, count + 1),
+                      onDec: () => widget.onCountChanged(
+                          fruit.$1, (count - 1).clamp(0, 99)),
+                    )
+                  else
+                    const SizedBox(width: 40),
+                ],
+              ),
             ),
           ),
         );
