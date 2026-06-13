@@ -249,18 +249,24 @@ class _RecipeCardState extends State<_RecipeCard> {
               color: kPrimary.withValues(alpha: isDark ? 0.5 : 0.3), width: 1.5),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              '${widget.number}) ${widget.recipe.name} ($_ml ml)',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: titleColor),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${widget.number}) ${widget.recipe.name} ($_ml ml)',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor),
+              ),
             ),
             const SizedBox(height: 6),
-            Text('Ingredients:',
-                style: TextStyle(fontSize: 13, color: subColor)),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Ingredients:',
+                  style: TextStyle(fontSize: 13, color: subColor)),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 12,
@@ -281,9 +287,11 @@ class _RecipeCardState extends State<_RecipeCard> {
             ),
             const SizedBox(height: 14),
             Text('How many ml of fruit juice would you like?',
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: subColor)),
             const SizedBox(height: 10),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () =>
