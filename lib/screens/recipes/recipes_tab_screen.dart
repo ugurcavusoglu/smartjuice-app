@@ -476,8 +476,7 @@ class _RecipePopupState extends State<_RecipePopup> {
                           final name = allNames[i];
                           final ing = widget.recipe.ingredients
                               .firstWhere((x) => x.name == name);
-                          final emoji =
-                              ing.emoji.isNotEmpty ? ing.emoji : '🍹';
+                          final svgPath = _fruitSvg[name];
                           final count = _counts[name] ?? 0;
                           return Container(
                             color: Colors.white.withValues(alpha: 0.12),
@@ -487,9 +486,20 @@ class _RecipePopupState extends State<_RecipePopup> {
                               children: [
                                 SizedBox(
                                   width: 36,
-                                  child: Text(emoji,
-                                      style:
-                                          const TextStyle(fontSize: 22)),
+                                  child: svgPath != null
+                                      ? SvgPicture.asset(svgPath,
+                                          width: 28,
+                                          height: 28,
+                                          colorFilter:
+                                              const ColorFilter.mode(
+                                                  Colors.white,
+                                                  BlendMode.srcIn))
+                                      : Text(
+                                          ing.emoji.isNotEmpty
+                                              ? ing.emoji
+                                              : '🍹',
+                                          style: const TextStyle(
+                                              fontSize: 22)),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
