@@ -1187,23 +1187,44 @@ class _FruitPickerList extends StatefulWidget {
 }
 
 class _FruitPickerListState extends State<_FruitPickerList> {
-  int? _selectedIndex;
+  final _scrollCtrl = ScrollController();
+  int? _tappedIndex;
   static const double _itemH = 76.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollCtrl.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  int get _scrollCenterIndex {
+    final offset = _scrollCtrl.hasClients ? _scrollCtrl.offset : 0;
+    return ((offset + 115) / _itemH).floor().clamp(0, widget.fruits.length - 1);
+  }
+
+  int get _activeIndex => _tappedIndex ?? _scrollCenterIndex;
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      controller: _scrollCtrl,
       padding: EdgeInsets.zero,
       itemCount: widget.fruits.length,
-      separatorBuilder: (_, __) => Divider(
-          height: 1, color: Colors.black.withValues(alpha: 0.06)),
+      separatorBuilder: (_, __) =>
+          Divider(height: 1, color: Colors.black.withValues(alpha: 0.06)),
       itemBuilder: (_, i) {
         final fruit = widget.fruits[i];
         final count = widget.counts[fruit.$1] ?? 0;
-        final isSelected = i == _selectedIndex || count > 0;
+        final isActive = i == _activeIndex || count > 0;
         return GestureDetector(
           onTap: () => setState(() =>
-              _selectedIndex = _selectedIndex == i ? null : i),
+              _tappedIndex = (_tappedIndex == i) ? null : i),
           child: SizedBox(
             height: _itemH,
             child: Padding(
@@ -1225,7 +1246,7 @@ class _FruitPickerListState extends State<_FruitPickerList> {
                             fontWeight: FontWeight.w600,
                             fontSize: 16)),
                   ),
-                  if (isSelected)
+                  if (isActive)
                     _VerticalCounter(
                       count: count,
                       onInc: () =>
