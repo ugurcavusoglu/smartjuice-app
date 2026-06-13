@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:ui';
 import 'dart:math';
 import 'dart:async';
@@ -11,24 +12,24 @@ import '../../widgets/juice_glass.dart';
 import '../../models/ingredient.dart';
 
 const _fruits = [
-  ('Apple', '🍎'),
-  ('Banana', '🍌'),
-  ('Orange', '🍊'),
-  ('Pear', '🍐'),
-  ('Peach', '🍑'),
-  ('Cherry', '🍒'),
-  ('Strawberry', '🍓'),
-  ('Blueberry', '🫐'),
-  ('Grape', '🍇'),
-  ('Watermelon', '🍉'),
-  ('Melon', '🍈'),
-  ('Pineapple', '🍍'),
-  ('Mango', '🥭'),
-  ('Kiwi', '🥝'),
-  ('Lemon', '🍋'),
-  ('Coconut', '🥥'),
-  ('Avocado', '🥑'),
-  ('Grapefruit', '🍊'),
+  ('Apple',      'assets/fruits/apple.svg'),
+  ('Banana',     'assets/fruits/banana.svg'),
+  ('Orange',     'assets/fruits/orange.svg'),
+  ('Pear',       'assets/fruits/pear.svg'),
+  ('Peach',      'assets/fruits/peach.svg'),
+  ('Cherry',     'assets/fruits/cherry.svg'),
+  ('Strawberry', 'assets/fruits/strawberry.svg'),
+  ('Blueberry',  'assets/fruits/blueberry.svg'),
+  ('Grape',      'assets/fruits/grape.svg'),
+  ('Watermelon', 'assets/fruits/watermelon.svg'),
+  ('Melon',      'assets/fruits/melon.svg'),
+  ('Pineapple',  'assets/fruits/pineapple.svg'),
+  ('Mango',      'assets/fruits/mango.svg'),
+  ('Kiwi',       'assets/fruits/kiwi.svg'),
+  ('Lemon',      'assets/fruits/lemon.svg'),
+  ('Coconut',    'assets/fruits/coconut.svg'),
+  ('Avocado',    'assets/fruits/avocado.svg'),
+  ('Grapefruit', 'assets/fruits/grapefruit.svg'),
 ];
 
 // Vitamin scores per fruit (0.0 – 1.0), only notable values listed
@@ -63,8 +64,15 @@ Map<String, double> _calcVitamins(List<String> names) {
   return totals;
 }
 
-String _emojiFor(String name) =>
-    _fruits.firstWhere((f) => f.$1 == name, orElse: () => (name, '🍹')).$2;
+const _fruitEmojis = {
+  'Apple': '🍎', 'Banana': '🍌', 'Orange': '🍊', 'Pear': '🍐',
+  'Peach': '🍑', 'Cherry': '🍒', 'Strawberry': '🍓', 'Blueberry': '🫐',
+  'Grape': '🍇', 'Watermelon': '🍉', 'Melon': '🍈', 'Pineapple': '🍍',
+  'Mango': '🥭', 'Kiwi': '🥝', 'Lemon': '🍋', 'Coconut': '🥥',
+  'Avocado': '🥑', 'Grapefruit': '🍊',
+};
+
+String _emojiFor(String name) => _fruitEmojis[name] ?? '🍹';
 
 // ── BT status ─────────────────────────────────────────────────────────────
 
@@ -1085,9 +1093,14 @@ class _IngredientPopupState extends State<_IngredientPopup> {
                                 horizontal: 14, vertical: 10),
                             child: Row(
                               children: [
-                                // Large emoji icon
-                                Text(fruit.$2,
-                                    style: const TextStyle(fontSize: 42)),
+                                // Large SVG icon
+                                SvgPicture.asset(
+                                  fruit.$2,
+                                  width: 48,
+                                  height: 48,
+                                  colorFilter: const ColorFilter.mode(
+                                      Colors.black87, BlendMode.srcIn),
+                                ),
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Text(fruit.$1,
