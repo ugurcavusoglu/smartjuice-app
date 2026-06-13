@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 import '../../providers/recipe_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../models/recipe.dart';
 import '../../models/ingredient.dart';
@@ -44,8 +45,9 @@ class _RecipesTabScreenState extends State<RecipesTabScreen> {
       provider.suggestions,
     ];
 
+    final isDark = context.watch<ThemeProvider>().isDark;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? kBgDark : Colors.white,
       body: Column(
         children: [
           // Red AppBar
@@ -60,7 +62,10 @@ class _RecipesTabScreenState extends State<RecipesTabScreen> {
             child: Row(
               children: [
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_back, color: Colors.white),
+                GestureDetector(
+                  onTap: widget.onGoHome,
+                  child: const Icon(Icons.arrow_back, color: Colors.white),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -115,13 +120,18 @@ class _RecipeListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final chevronBg = isDark ? kBgDark : Colors.white;
+    final chevronIcon = isDark ? Colors.white54 : Colors.black54;
     return Stack(
       children: [
         ListView.separated(
           padding: const EdgeInsets.only(
               left: 16, right: 16, top: 12, bottom: 80),
           itemCount: recipes.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: isDark ? Colors.white12 : Colors.black12),
           itemBuilder: (_, i) => _RecipeCard(
             number: i + 1,
             recipe: recipes[i],
@@ -138,15 +148,14 @@ class _RecipeListPage extends StatelessWidget {
                 child: Container(
                   width: 28, height: 56,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: chevronBg,
                     borderRadius: const BorderRadius.horizontal(
                         right: Radius.circular(12)),
                     boxShadow: [BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 6)],
                   ),
-                  child: const Icon(Icons.chevron_left,
-                      color: Colors.black54, size: 22),
+                  child: Icon(Icons.chevron_left, color: chevronIcon, size: 22),
                 ),
               ),
             ),
@@ -160,15 +169,14 @@ class _RecipeListPage extends StatelessWidget {
                 child: Container(
                   width: 28, height: 56,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: chevronBg,
                     borderRadius: const BorderRadius.horizontal(
                         left: Radius.circular(12)),
                     boxShadow: [BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 6)],
                   ),
-                  child: const Icon(Icons.chevron_right,
-                      color: Colors.black54, size: 22),
+                  child: Icon(Icons.chevron_right, color: chevronIcon, size: 22),
                 ),
               ),
             ),
@@ -334,6 +342,8 @@ class _RecipePopupState extends State<_RecipePopup> {
     }
   }
 
+  int get _totalSelected => _counts.values.fold(0, (a, b) => a + b);
+
   void _confirm() {
     widget.provider.reset();
     _counts.forEach((name, count) {
@@ -459,10 +469,11 @@ class _RecipePopupState extends State<_RecipePopup> {
                         width: double.infinity,
                         height: 44,
                         child: ElevatedButton(
-                          onPressed: _confirm,
+                          onPressed: _totalSelected > 0 ? _confirm : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Colors.white.withValues(alpha: 0.85),
+                            backgroundColor: _totalSelected > 0
+                                ? Colors.white.withValues(alpha: 0.85)
+                                : Colors.white.withValues(alpha: 0.3),
                             foregroundColor: kPrimary,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30)),

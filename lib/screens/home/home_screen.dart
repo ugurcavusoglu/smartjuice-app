@@ -366,6 +366,7 @@ class _HomeMainViewState extends State<_HomeMainView>
                               fillFraction: (!_isMaking && !_juiceReady)
                                   ? 0
                                   : _fillAnim.value,
+                              isDark: isDark,
                             ),
                           ),
                         ),
@@ -982,6 +983,8 @@ class _IngredientPopupState extends State<_IngredientPopup> {
         .toList();
   }
 
+  int get _totalSelected => _counts.values.fold(0, (a, b) => a + b);
+
   void _confirm(RecipeProvider provider) {
     final selected = <String>[];
     _counts.forEach((name, count) {
@@ -1159,10 +1162,13 @@ class _IngredientPopupState extends State<_IngredientPopup> {
                             width: double.infinity,
                             height: 44,
                             child: ElevatedButton(
-                              onPressed: () => _confirm(provider),
+                              onPressed: _totalSelected > 0
+                                  ? () => _confirm(provider)
+                                  : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Colors.white.withValues(alpha: 0.85),
+                                backgroundColor: _totalSelected > 0
+                                    ? Colors.white.withValues(alpha: 0.85)
+                                    : Colors.white.withValues(alpha: 0.3),
                                 foregroundColor: kPrimary,
                                 shape: RoundedRectangleBorder(
                                     borderRadius:

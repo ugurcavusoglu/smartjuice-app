@@ -75,7 +75,6 @@ class SettingsScreen extends StatelessWidget {
                           fontSize: 22,
                           fontWeight: FontWeight.bold)),
                 ),
-                const Icon(Icons.settings, color: Colors.white, size: 26),
               ],
             ),
           ),

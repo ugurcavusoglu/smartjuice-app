@@ -4,9 +4,14 @@ import '../theme/app_theme.dart';
 class JuiceGlass extends StatelessWidget {
   final double fillFraction;
   final bool isDone;
+  final bool isDark;
 
-  const JuiceGlass(
-      {super.key, required this.fillFraction, this.isDone = false});
+  const JuiceGlass({
+    super.key,
+    required this.fillFraction,
+    this.isDone = false,
+    this.isDark = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +19,8 @@ class JuiceGlass extends StatelessWidget {
       width: 180,
       height: 240,
       child: CustomPaint(
-        painter: _GlassPainter(fillFraction: fillFraction, isDone: isDone),
+        painter: _GlassPainter(
+            fillFraction: fillFraction, isDone: isDone, isDark: isDark),
       ),
     );
   }
@@ -23,15 +29,18 @@ class JuiceGlass extends StatelessWidget {
 class _GlassPainter extends CustomPainter {
   final double fillFraction;
   final bool isDone;
+  final bool isDark;
 
-  _GlassPainter({required this.fillFraction, required this.isDone});
+  _GlassPainter(
+      {required this.fillFraction,
+      required this.isDone,
+      required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
 
-    // Flat-bottom cylinder shape (slight taper, straight bottom)
     final tl = Offset(w * 0.12, h * 0.02);
     final tr = Offset(w * 0.88, h * 0.02);
     final br = Offset(w * 0.82, h * 0.95);
@@ -74,8 +83,9 @@ class _GlassPainter extends CustomPainter {
     }
 
     // Outline
+    final outlineColor = isDark ? Colors.white70 : Colors.black87;
     final outlinePaint = Paint()
-      ..color = Colors.black87
+      ..color = outlineColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..strokeJoin = StrokeJoin.round
@@ -84,7 +94,7 @@ class _GlassPainter extends CustomPainter {
 
     // Straw
     final strawPaint = Paint()
-      ..color = Colors.black54
+      ..color = isDark ? Colors.white38 : Colors.black54
       ..strokeWidth = 4.5
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
@@ -95,7 +105,7 @@ class _GlassPainter extends CustomPainter {
 
     // Shine line
     final shinePaint = Paint()
-      ..color = Colors.black26
+      ..color = isDark ? Colors.white12 : Colors.black26
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
@@ -107,5 +117,7 @@ class _GlassPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GlassPainter old) =>
-      old.fillFraction != fillFraction || old.isDone != isDone;
+      old.fillFraction != fillFraction ||
+      old.isDone != isDone ||
+      old.isDark != isDark;
 }

@@ -288,14 +288,23 @@ class _ForgotPasswordDialogState extends State<_ForgotPasswordDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Please enter your e-mail.',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-          textAlign: TextAlign.center,
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Please enter your e-mail.',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: const Icon(Icons.close, color: Colors.black45, size: 22),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         TextField(
